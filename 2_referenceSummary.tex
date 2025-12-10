@@ -127,7 +127,7 @@
 
 经典小波是通过平移和缩放单个母波来构造的，转换系数由输入函数与这些转换和缩放波形的内积给出。
 由于不清楚如何在不规则图上定义缩放和平移，因此难以直接将这种结构扩展到任意加权图。
-通过在谱图理论的相关工作来解决这个问题，即以图拉普拉斯矩阵作为变换后的特征空间，类似于图上的傅里叶变换。
+Hammond 等人\upcite{hammond2011wavelets}利用谱图理论的相关工作来解决这个问题，即以图拉普拉斯矩阵作为变换后的特征空间，类似于图上的傅里叶变换。
 
 对于任意定义在节点上的的函数$f\in \mathbb{R}^N$，其图傅里叶变换为：
 \begin{equation}
@@ -137,13 +137,83 @@
 \begin{equation}
     f(n)=\sum_{\mathcal{l}=0}^{N-1} \hat f(\mathcal{l})\mathcal{X_l}(n)
 \end{equation}
-显然，图傅里叶域，以拉普拉斯矩阵的特征向量为基。图傅里叶变换的矩阵形式：
+显然，图傅里叶域以拉普拉斯矩阵的特征向量为基。图傅里叶变换的矩阵形式为：
 \begin{equation}
     \hat x=U^\top x \\
     x=U\hat x 
 \end{equation}
 
 图傅里叶变换的提出解决了不规则图上平移和缩放操作的尺度不变性问题，而如何基于图傅里叶变化来设计高效的局部滤波器则是图信号处理中的另一个关键问题。
+卷积神经网络在图像处理领域取得了非常好的效果，通过定义网络结构上的卷积核来处理图信号也随之成为一个热门的研究方向。
+Defferrard 等人\upcite{defferrard2016convolutional} 在图傅里叶变换的基础上，进一步定义了图卷积操作，并通过对卷积核函数采用特定的参数化方式保证了其作用范围的局部性。
+首先，借助图傅里叶变换，图上的卷积算子被定义如下：
+\begin{equation}
+    x \ast y = U((U^\top x)\odot (U^\top y))
+\end{equation}
+其中，$x,y $是定义在图上的离散函数。因此可以在图上定义对信号$x$的卷积操作：
+\begin{equation}
+    x'=Ug_\theta (\Lambda)U^\top x
+\end{equation}
+其中，$g_\theta (\Lambda)$表示变换到傅里叶域中的卷积核，而$\Lambda$代表了图的一些结构性质。对于一个完全自由的卷积核，其可以完全独立于图的结构而被定义如下：
+\begin{equation}
+    g_\theta(\Lambda)=\text{diag}(\theta)\quad \theta \in \mathbb{R}^N
+\end{equation}
+即$\theta $作为傅里叶域基底的系数。然而这样的定义存在两个问题：一是不能保证卷积的操作的局部性，二是参数学习的成本太高。针对这两个问题，可以定义多项式卷积核：
+\begin{equation}
+    g_\theta(\Lambda)=\sum_{k=0}^{K-1}\theta_k\Lambda^k
+\end{equation}
+即$\theta $作为关于$\Lambda$的多项式的系数。此时有：
+\begin{equation}
+    \begin{aligned}
+        x'&=Ug_\theta (\Lambda)U^\top x \\
+        &=U\sum_{k=0}^{K-1}\theta_k\Lambda^kU^\top x \\
+        &=\sum_{k=0}^{K-1}\theta_kU\Lambda^kU^\top x \\
+        &=\sum_{k=0}^{K-1}\theta_kL^k x
+    \end{aligned} 
+\end{equation}
+可以 Kronecker delta 函数$\delta_i$作为卷积的输入来分析节点$i$经过卷积后的效果：
+\begin{equation}
+    \begin{aligned}
+        \delta_i'&=\sum_{k=0}^{K-1}\theta_kL^k \delta_i \\
+        &=\sum_{k=0}^{K-1}\theta_kL_{i}^k
+    \end{aligned} 
+\end{equation}
+
+不难发现，这里矩阵$L$类似于一步转移矩阵，因此当节点$i,j$之间的最短路径长度大于$K $时$\delta_{ij}'=0$。因此，这种卷积操作能够确保局部性为$K $，同时，参数学习的成本也大大降低了：$K\ll N$。然而，卷积操作$x'=Ug_\theta (\Lambda)U^\top x$的代价依然很高，因为涉及和傅里叶基的矩阵乘法，所以复杂度是$O(N^2)$。一种解决思路是将其参数化为能够通过对$L$迭代计算得到的多项式，即进行$K$次稀疏的矩阵乘法来降低计算复杂度：$O(K|\varepsilon|)\ll O(N^2)$。一种满足条件的多项式，是切比雪夫多项式（Chebyshev expansion），通常在图信号处理中用来近似小波：
+\begin{equation}
+    \begin{aligned}
+        T_k(x)=
+          \begin{cases}
+          2xT_{k-1}(x)-T_{k-2}(x), \quad k>1\\
+          x,\quad k=1\\
+          1, \quad k=0
+          \end{cases}
+    \end{aligned} 
+\end{equation}
+
+首先，这些多项式在希尔伯特空间上构成一组正交基：
+\begin{equation}
+    \int_{-1}^1 T_m(x) \cdot T_n(x) \cdot \frac{1}{\sqrt{1-x^2}} dx = 
+    \begin{cases} 
+    0 & (m \neq n), \\
+    \pi & (m = n = 0), \\
+    \pi/2 & (m = n \geq 1).
+    \end{cases}
+\end{equation}
+
+正交区间为$[-1,1]$，能够在此区间上逼近任意的平方可积函数。于是参数化定义傅里叶域中的卷积核：
+\begin{equation}
+    g_\theta(\Lambda)=\sum_{k=0}^{K-1}\theta_kT_k(\tilde{\Lambda})
+\end{equation}
+其中，$\tilde{\Lambda}=2\Lambda/\lambda_{max}-I_n$将特征值缩放到切比雪夫多项式的正交区间，从而保证这种参数化方法的表示能力等价于前一种方式。于是乎，新参数化方法下的卷积操作变为：
+\begin{equation}
+    \begin{aligned}
+        x'&=U\sum_{k=0}^{K-1}\theta_kT_k(\tilde{\Lambda})U^\top x \\
+        &=\sum_{k=0}^{K-1}\theta_kT_k(\tilde{L}) x \\
+    \end{aligned} 
+\end{equation}
+
+其中$\tilde{L}=2L/\lambda_{max}-I_n$，可证$\lambda_{max}=2\Delta$，$\Delta$为最大度。$\tilde{L}$是$L$的对称归一化形式。
 
 \subsubsection{图嵌入}
 基于图嵌入的分析方法在图信号处理的基础上，借鉴深度学习相关技术的成果和经验，将表示学习的思路应用于网络结构特征的提取。这类方法的输入仍然是一堆具有网络结构的信号点，但输出除了信号特征外，还包括学习到的特征提取器和节点的嵌入向量表示。
