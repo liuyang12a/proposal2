@@ -1,0 +1,12 @@
+*copy*
+*.doc
+*.aux
+*.pdf
+*.bcf
+*.log
+*.out
+*.run.xml
+*.blg
+*.bbl
+*.gz
+!cover.pdf

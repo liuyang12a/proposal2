@@ -1,0 +1,157 @@
+%%%%% --------------------------------------------------------------------------------
+%%
+%%%%******************************* Main Content *************************************
+%%
+%%% ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+\section{文献综述}
+
+（该选题在国内/外的研究现状及发展动态；阅读文献的范围以及查阅方式等。博士不得少于3000字，硕士不少于2000字。）
+
+\subsection{网络结构分析技术}
+网络结构分析技术是在图论的基础上，将网络的结构作为分析的对象，通过特定算法来提取网络的结构特征。
+从其发展历史脉络来看，可以大致分为以下三个阶段，分别是：基于谱图理论的分析方法、基于图信号处理理论的分析方法和基于图嵌入的分析方法。
+
+\subsubsection{谱图理论}
+基于谱图理论的分析方法一般将网络结构本身作为主要的分析对象，其输入一般为网络的结构，输出为网络的结构特征参数。
+
+谱图理论基于图论的基础来表示一个网络 $G(V,E)$，其中 $V=(v_1, v_2,...v_n)$ 表示网络中所有节点，$E=(...,e_{ij}, ...)$表示网络中所有的连边。
+于是网络结构可以表征为一个邻接矩阵 $W=[w_{ij}]$，其元素满足:
+\begin{equation}
+    w_{ij}= 
+    \begin{cases} 
+        0& {e_{ij} \notin E}\\ 
+        \epsilon & {e_{ij} \in E}
+    \end{cases}
+\end{equation}
+其中，$\epsilon$ 为边的权重，对于无权重图，$\epsilon=1$。
+
+每个节点的度定义为：
+\begin{equation}
+    d_i = \sum\limits_{j=1}^{n}w_{ij}
+\end{equation}
+利用每个节点的度，可以定义一个度矩阵 $D^{n\times n}$：
+\begin{equation}
+    D = diag(d_1, d_2, ..., d_i,..., d_n)
+\end{equation}
+
+
+通过网络的邻接矩阵和度矩阵，可以定义网络的拉普拉斯矩阵（Graph Laplacian）：
+\begin{equation}
+    L= D-W
+\end{equation}
+
+拉普拉斯矩阵是谱图理论中最为重要的一个分析工具，又被称为图的谱。特别是对于无向图，其拉普拉斯矩阵具有一些很好的性质：
+\begin{itemize}
+    \item 对称性，即所有的特征值均为实数；
+    \item 二次型满足：$f^\top Lf = \frac{1}{2}\sum\limits_{i,j=1}^{n}w_{ij}(f_i-f_j)^2$；
+    \item 半正定，即有 $0 =\lambda_1 \leq \lambda_2 \leq... \leq \lambda_n \leq 2\Delta, \quad \Delta=\max(...,d_i,...)$。
+\end{itemize}
+
+谱图理论的一个典型应用是谱聚类，谱聚类是一个无向图切图问题，试图找到一个图的最优分割 $A_1,A_2,..A_k$，使得如下目标函数最小：
+\begin{equation}
+    NCut(A_1,A_2,...,A_k) = \frac{1}{2}\sum\limits_{i=1}^{k}\frac{cut(A_i, \overline{A}_i )}{vol(A_i)}
+\end{equation}
+其中，$cut(A, B) = \sum\limits_{i \in A, j \in B}w_{ij}$，$vol(A): = \sum\limits_{i \in A}d_i$。从而使分割后同一子类中的连边权重尽可能的大而子类间的连边尽可能的小。
+为了便于优化上述目标，可以引入$k$个$n$维的指示向量 $h_j \in \{h_1, h_2,..h_k\}\; j =1,2,...k$ 来表示分割结果，其分量为：
+\begin{equation}
+    h_{ij}= \begin{cases} 0& { v_i \notin A_j}\\ \frac{1}{\sqrt{vol(A_j)}}& { v_i \in A_j} \end{cases}
+\end{equation}
+于是有：
+\begin{equation}
+    \begin{aligned} 
+        h_i^{\top}Lh_i & = \frac{1}{2}\sum\limits_{m=1}\sum\limits_{n=1}w_{mn}(h_{im}-h_{in})^2 \\
+        & =\frac{1}{2}(\sum\limits_{m \in A_i, n \notin A_i}w_{mn}(\frac{1}{\sqrt{vol(A_i)}} - 0)^2 +  \sum\limits_{m \notin A_i, n \in A_i}w_{mn}(0 - \frac{1}{\sqrt{vol(A_i)}} )^2\\
+        & = \frac{1}{2}(\sum\limits_{m \in A_i, n \notin A_i}w_{mn}\frac{1}{vol(A_i)} +  \sum\limits_{m \notin A_i, n \in A_i}w_{mn}\frac{1}{vol(A_i)}\\
+        & = \frac{1}{2}(cut(A_i, \overline{A}_i) \frac{1}{vol(A_i)} + cut(\overline{A}_i, A_i) \frac{1}{vol(A_i)}) \\
+        & =  \frac{cut(A_i, \overline{A}_i)}{vol(A_i)} 
+    \end{aligned}
+\end{equation}
+此时优化的目标可以写为：
+\begin{equation}
+    NCut(A_1,A_2,...A_k) = \sum\limits_{i=1}^{k}h_i^{\top}Lh_i = \sum\limits_{i=1}^{k}(H^{\top}LH)_{ii} = tr(H^{\top}LH)
+\end{equation}
+又因为 $H$ 满足 $H^{\top}DH = I$，因此令 $H = D^{-1/2}F$ 可得 $F^{\top}F = I$，此时优化目标进一步改写为：
+\begin{equation}
+    \underbrace{arg\;min}_F\; tr(F^{\top}D^{-1/2}LD^{-1/2}F) \;\; s.t.\;F^{\top}F=I
+\end{equation}
+其中，$F$是一组正交基，$D^{-1/2}LD^{-1/2}$ 仍然是对称矩阵，常被记为对称归一化的拉普拉斯矩阵 $L_{sym}$。
+因此，借鉴维度规约的思想，可以通过找到 $L_{sym}$ 的最小的 $k$ 个特征值对应的特征向量并归一化来作为 $F$ 的近似最优解。
+然而，由于使用维度规约损失额少量信息以及正交化变换，$F$不能直接指示各节点的子类归属，因此需要再对齐进行一次传统的聚类（如K-means），即可得到谱聚类的结果。
+对$F$的传统聚类，就相当于对网络结构在谱空间上的聚类，谱空间的基即为$L_{sym}$。
+
+\begin{algorithm}[h]
+    \caption{谱聚类算法}
+    \label{alg:spectral_clustering}
+    \begin{algorithmic}[1] % 1表示显示行号
+      \REQUIRE 
+        数据集 $X = \{x_1, x_2, ..., x_n\} \subseteq \mathbb{R}^d$（$n$ 个样本，维度 $d$）,
+        聚类数 $k$,
+        相似性矩阵构建方式（如 $\epsilon$-近邻/全连接）,
+        核函数参数（如高斯核带宽 $\sigma$，若使用核方法）
+      \ENSURE 
+        聚类结果 $\mathcal{C} = \{C_1, C_2, ..., C_k\}$（$C_i$ 为第 $i$ 类的样本索引集合）
+      
+      \STATE \textbf{步骤1：构建相似性矩阵 $W$}
+      \STATE 对任意样本对 $(x_i, x_j)$，计算相似性权重 $W_{ij}$：
+      \STATE \quad 若使用高斯核（RBF）：$W_{ij} = \exp\left(-\frac{\|x_i - x_j\|^2}{2\sigma^2}\right)$（$i \neq j$），$W_{ii} = 0$；
+      \STATE \quad 若使用 $\epsilon$-近邻：$W_{ij} = 1$（若 $\|x_i - x_j\| < \epsilon$ 且 $i \neq j$），否则 $W_{ij} = 0$；
+      \STATE \quad 保证 $W$ 对称：$W_{ij} = W_{ji}$。
+  
+      \STATE \textbf{步骤2：计算度矩阵 $D$ 和归一化拉普拉斯矩阵 $L_{\text{sym}}$}
+      \STATE 度矩阵 $D$ 为对角矩阵：$D_{ii} = \sum_{j=1}^n W_{ij}$；
+      \STATE 对称归一化拉普拉斯矩阵：$L_{\text{sym}} = I - D^{-1/2} W D^{-1/2}$（$I$ 为单位矩阵）。
+  
+      \STATE \textbf{步骤3：特征分解与降维}
+      \STATE 对 $L_{\text{sym}}$ 做特征分解，得到特征值 $\lambda_0 \leq \lambda_1 \leq ... \leq \lambda_{n-1}$ 和对应特征向量 $u_0, u_1, ..., u_{n-1}$；
+      \STATE 选取前 $k$ 个最小特征值对应的特征向量 $u_0, u_1, ..., u_{k-1}$，构造矩阵 $U \in \mathbb{R}^{n \times k}$（每行对应一个样本，每列对应一个特征向量）；
+      \STATE 对 $U$ 的行做归一化（每行除以其 $L_2$ 范数），得到矩阵 $Y \in \mathbb{R}^{n \times k}$：
+      \STATE \quad $Y_{ij} = \frac{U_{ij}}{\sqrt{\sum_{l=1}^k U_{il}^2}}$。
+  
+      \STATE \textbf{步骤4：聚类与结果输出}
+      \STATE 将 $Y$ 的每行视为 $\mathbb{R}^k$ 空间中的一个样本，使用 $k$-means 算法聚类，得到聚类标签 $\{y_1, y_2, ..., y_n\}$（$y_i \in \{1,2,...,k\}$）；
+      \STATE 按标签划分聚类：$C_i = \{p \in \{1,..,n\} \mid y_p = i\}$，输出 $\mathcal{C} = \{C_1, ..., C_k\}$。
+    \end{algorithmic}
+  \end{algorithm}
+
+\subsubsection{图信号处理}
+基于图信号处理的分析方法则不仅仅关注网络结构本身，而是考虑将传统的信号分析处理技术延伸到网络这样一种通用的不规则空间中来。这类方法的输入一般为呈现出一定网络结构的信号点的集合，输出为信号特征。
+
+由于许多传统的信号处理方法都是针对规则的欧几里得空间上定义的数据而设计的。
+然而，在一些特定应用场景中，涉及的数据定义在拓扑结构更复杂的空间中，例如，计算机网络、交通（公路、铁路、飞机）网络或社交网络都可以用加权图来描述，顶点分别对应于单个计算机、城市或人。
+一些经典的信号处理技术往往需要在处理前对信号进行变换，例如傅里叶变换和小波变换，从而在变换后的空间中来完成特征提取。
+基于小波变换的方法的强大之处在于它们能够同时在时域和频域上对信号内容进行局部化。
+对于主要信息内容存在于局部奇异点的信号，如时间序列信号中的阶跃不连续或图像中的边缘，小波可以提供比原始域或具有全局基元的变换更紧凑的表示。
+小波变换在规则空间上对信号处理问题的有效性激发了对不规则的非欧氏空间的扩展研究。
+
+经典小波是通过平移和缩放单个母波来构造的，转换系数由输入函数与这些转换和缩放波形的内积给出。
+由于不清楚如何在不规则图上定义缩放和平移，因此难以直接将这种结构扩展到任意加权图。
+通过在谱图理论的相关工作来解决这个问题，即以图拉普拉斯矩阵作为变换后的特征空间，类似于图上的傅里叶变换。
+
+对于任意定义在节点上的的函数$f\in \mathbb{R}^N$，其图傅里叶变换为：
+\begin{equation}
+    \hat f(\mathcal{l}) = \langle \mathcal{X_l}, f\rangle = \sum_{n=1}^{N} \overline{\mathcal{X_l}(n)}f(n)
+\end{equation}
+对应的图傅里叶逆变换为：
+\begin{equation}
+    f(n)=\sum_{\mathcal{l}=0}^{N-1} \hat f(\mathcal{l})\mathcal{X_l}(n)
+\end{equation}
+显然，图傅里叶域，以拉普拉斯矩阵的特征向量为基。图傅里叶变换的矩阵形式：
+\begin{equation}
+    \hat x=U^\top x \\
+    x=U\hat x 
+\end{equation}
+
+图傅里叶变换的提出解决了不规则图上平移和缩放操作的尺度不变性问题，而如何基于图傅里叶变化来设计高效的局部滤波器则是图信号处理中的另一个关键问题。
+
+\subsubsection{图嵌入}
+基于图嵌入的分析方法在图信号处理的基础上，借鉴深度学习相关技术的成果和经验，将表示学习的思路应用于网络结构特征的提取。这类方法的输入仍然是一堆具有网络结构的信号点，但输出除了信号特征外，还包括学习到的特征提取器和节点的嵌入向量表示。
+
+\subsection{时空序列分析技术}
+
+
+\subsection{网络重构}
+
+
+%%% ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
