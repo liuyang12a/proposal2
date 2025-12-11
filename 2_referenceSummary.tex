@@ -76,10 +76,10 @@
 \begin{equation}
     \underbrace{arg\;min}_F\; tr(F^{\top}D^{-1/2}LD^{-1/2}F) \;\; s.t.\;F^{\top}F=I
 \end{equation}
-其中，$F$是一组正交基，$D^{-1/2}LD^{-1/2}$ 仍然是对称矩阵，常被记为对称归一化的拉普拉斯矩阵 $L_{sym}$。
-因此，借鉴维度规约的思想，可以通过找到 $L_{sym}$ 的最小的 $k$ 个特征值对应的特征向量并归一化来作为 $F$ 的近似最优解。
+其中，$F$是一组正交基，$D^{-1/2}LD^{-1/2}$ 仍然是对称矩阵，常被记为对称归一化的拉普拉斯矩阵 $\tilde{L}$。
+因此，借鉴维度规约的思想，可以通过找到 $\tilde{L}$ 的最小的 $k$ 个特征值对应的特征向量并归一化来作为 $F$ 的近似最优解。
 然而，由于使用维度规约损失额少量信息以及正交化变换，$F$不能直接指示各节点的子类归属，因此需要再对齐进行一次传统的聚类（如K-means），即可得到谱聚类的结果。
-对$F$的传统聚类，就相当于对网络结构在谱空间上的聚类，谱空间的基即为$L_{sym}$。
+对$F$的传统聚类，就相当于对网络结构在谱空间上的聚类，谱空间的基即为$\tilde{L}$。
 
 \begin{algorithm}[h]
     \caption{谱聚类算法}
@@ -93,23 +93,23 @@
       \ENSURE 
         聚类结果 $\mathcal{C} = \{C_1, C_2, ..., C_k\}$（$C_i$ 为第 $i$ 类的样本索引集合）
       
-      \STATE \textbf{步骤1：构建相似性矩阵 $W$}
+      \STATE 步骤1：构建相似性矩阵 $W$
       \STATE 对任意样本对 $(x_i, x_j)$，计算相似性权重 $W_{ij}$：
       \STATE \quad 若使用高斯核（RBF）：$W_{ij} = \exp\left(-\frac{\|x_i - x_j\|^2}{2\sigma^2}\right)$（$i \neq j$），$W_{ii} = 0$；
       \STATE \quad 若使用 $\epsilon$-近邻：$W_{ij} = 1$（若 $\|x_i - x_j\| < \epsilon$ 且 $i \neq j$），否则 $W_{ij} = 0$；
       \STATE \quad 保证 $W$ 对称：$W_{ij} = W_{ji}$。
   
-      \STATE \textbf{步骤2：计算度矩阵 $D$ 和归一化拉普拉斯矩阵 $L_{\text{sym}}$}
+      \STATE 步骤2：计算度矩阵 $D$ 和归一化拉普拉斯矩阵 $\tilde{L}$
       \STATE 度矩阵 $D$ 为对角矩阵：$D_{ii} = \sum_{j=1}^n W_{ij}$；
-      \STATE 对称归一化拉普拉斯矩阵：$L_{\text{sym}} = I - D^{-1/2} W D^{-1/2}$（$I$ 为单位矩阵）。
+      \STATE 对称归一化拉普拉斯矩阵：$\tilde{L} = I - D^{-1/2} W D^{-1/2}$（$I$ 为单位矩阵）。
   
-      \STATE \textbf{步骤3：特征分解与降维}
-      \STATE 对 $L_{\text{sym}}$ 做特征分解，得到特征值 $\lambda_0 \leq \lambda_1 \leq ... \leq \lambda_{n-1}$ 和对应特征向量 $u_0, u_1, ..., u_{n-1}$；
+      \STATE 步骤3：特征分解与降维
+      \STATE 对 $\tilde{L}$ 做特征分解，得到特征值 $\lambda_0 \leq \lambda_1 \leq ... \leq \lambda_{n-1}$ 和对应特征向量 $u_0, u_1, ..., u_{n-1}$；
       \STATE 选取前 $k$ 个最小特征值对应的特征向量 $u_0, u_1, ..., u_{k-1}$，构造矩阵 $U \in \mathbb{R}^{n \times k}$（每行对应一个样本，每列对应一个特征向量）；
       \STATE 对 $U$ 的行做归一化（每行除以其 $L_2$ 范数），得到矩阵 $Y \in \mathbb{R}^{n \times k}$：
       \STATE \quad $Y_{ij} = \frac{U_{ij}}{\sqrt{\sum_{l=1}^k U_{il}^2}}$。
   
-      \STATE \textbf{步骤4：聚类与结果输出}
+      \STATE 步骤4：聚类与结果输出
       \STATE 将 $Y$ 的每行视为 $\mathbb{R}^k$ 空间中的一个样本，使用 $k$-means 算法聚类，得到聚类标签 $\{y_1, y_2, ..., y_n\}$（$y_i \in \{1,2,...,k\}$）；
       \STATE 按标签划分聚类：$C_i = \{p \in \{1,..,n\} \mid y_p = i\}$，输出 $\mathcal{C} = \{C_1, ..., C_k\}$。
     \end{algorithmic}
@@ -127,7 +127,7 @@
 
 经典小波是通过平移和缩放单个母波来构造的，转换系数由输入函数与这些转换和缩放波形的内积给出。
 由于不清楚如何在不规则图上定义缩放和平移，因此难以直接将这种结构扩展到任意加权图。
-Hammond 等人\upcite{hammond2011wavelets}利用谱图理论的相关工作来解决这个问题，即以图拉普拉斯矩阵作为变换后的特征空间，类似于图上的傅里叶变换。
+Hammond等人\upcite{hammond2011wavelets}利用谱图理论的相关工作来解决这个问题，即以图拉普拉斯矩阵作为变换后的特征空间，类似于图上的傅里叶变换。
 
 对于任意定义在节点上的的函数$f\in \mathbb{R}^N$，其图傅里叶变换为：
 \begin{equation}
@@ -139,13 +139,15 @@ Hammond 等人\upcite{hammond2011wavelets}利用谱图理论的相关工作来�
 \end{equation}
 显然，图傅里叶域以拉普拉斯矩阵的特征向量为基。图傅里叶变换的矩阵形式为：
 \begin{equation}
-    \hat x=U^\top x \\
-    x=U\hat x 
+    \begin{aligned}
+        \hat x=U^\top x \\
+        x=U\hat x 
+    \end{aligned}
 \end{equation}
 
 图傅里叶变换的提出解决了不规则图上平移和缩放操作的尺度不变性问题，而如何基于图傅里叶变化来设计高效的局部滤波器则是图信号处理中的另一个关键问题。
 卷积神经网络在图像处理领域取得了非常好的效果，通过定义网络结构上的卷积核来处理图信号也随之成为一个热门的研究方向。
-Defferrard 等人\upcite{defferrard2016convolutional} 在图傅里叶变换的基础上，进一步定义了图卷积操作，并通过对卷积核函数采用特定的参数化方式保证了其作用范围的局部性。
+Defferrard等人\upcite{defferrard2016convolutional} 在图傅里叶变换的基础上，进一步定义了图卷积操作，并通过对卷积核函数采用特定的参数化方式保证了其作用范围的局部性。
 首先，借助图傅里叶变换，图上的卷积算子被定义如下：
 \begin{equation}
     x \ast y = U((U^\top x)\odot (U^\top y))
@@ -190,7 +192,6 @@ Defferrard 等人\upcite{defferrard2016convolutional} 在图傅里叶变换的�
           \end{cases}
     \end{aligned} 
 \end{equation}
-
 首先，这些多项式在希尔伯特空间上构成一组正交基：
 \begin{equation}
     \int_{-1}^1 T_m(x) \cdot T_n(x) \cdot \frac{1}{\sqrt{1-x^2}} dx = 
@@ -200,23 +201,79 @@ Defferrard 等人\upcite{defferrard2016convolutional} 在图傅里叶变换的�
     \pi/2 & (m = n \geq 1).
     \end{cases}
 \end{equation}
-
 正交区间为$[-1,1]$，能够在此区间上逼近任意的平方可积函数。于是参数化定义傅里叶域中的卷积核：
 \begin{equation}
     g_\theta(\Lambda)=\sum_{k=0}^{K-1}\theta_kT_k(\tilde{\Lambda})
 \end{equation}
-其中，$\tilde{\Lambda}=2\Lambda/\lambda_{max}-I_n$将特征值缩放到切比雪夫多项式的正交区间，从而保证这种参数化方法的表示能力等价于前一种方式。于是乎，新参数化方法下的卷积操作变为：
+因为$\tilde{\Lambda}=2\Lambda/\lambda_{max}-I_n$将特征值缩放到切比雪夫多项式的正交区间，所以这种参数化方法的表示能力等价于前一种方式。于是，新参数化方法下的卷积操作变为：
 \begin{equation}
     \begin{aligned}
         x'&=U\sum_{k=0}^{K-1}\theta_kT_k(\tilde{\Lambda})U^\top x \\
         &=\sum_{k=0}^{K-1}\theta_kT_k(\tilde{L}) x \\
     \end{aligned} 
 \end{equation}
+其中$\tilde{L}=2L/\lambda_{max}-I_n$，$\lambda_{max}=2\Delta$，$\Delta$为最大度。
 
-其中$\tilde{L}=2L/\lambda_{max}-I_n$，可证$\lambda_{max}=2\Delta$，$\Delta$为最大度。$\tilde{L}$是$L$的对称归一化形式。
+为了能够使图卷积操作能够更好的适配深度学习框架，Kipf等人\upcite{kipf2017semi}在切比雪夫多项式参数化图卷积核的基础上提出了基于局部一阶近似的图卷积操作，图卷积层按如下定义：
+\begin{equation}
+    H^{(l+1)}=\sigma\Big( \tilde{D}^{-\frac{1}{2}}\tilde{A}\tilde{D}^{-\frac{1}{2}}H^{(l)}W^{(l)} \Big)
+\end{equation}
+其中，$\tilde{A}=A+I_n$表示加入了自连接的无向图的邻接矩阵。$\tilde{D}_{ii}=\sum_j\tilde{A}_{ij}$表示$\tilde{A}$的度矩阵。
+当限制GCN的局部感受野$K=1$时，卷积操作就变成了关于$L$的线性函数:
+\begin{equation}
+    \begin{aligned}
+        x'=g_{\theta}\ast x\approx \theta_0x+\theta_1\tilde{L}
+        x
+        &=\theta_0x+\theta_1D^{-\frac{1}{2}}LD^{-\frac{1}{2}}x \\
+        &=\theta_0x+\theta_1D^{-\frac{1}{2}}(D-A)D^{-\frac{1}{2}}x \\
+        &=\theta_0x+\theta_1(I_N-D^{-\frac{1}{2}}AD^{-\frac{1}{2}})x \\
+        &=(\theta_0+\theta_1)x-\theta_1D^{-\frac{1}{2}}AD^{-\frac{1}{2}}x \\
+        &=\theta_0x-\theta_1D^{-\frac{1}{2}}AD^{-\frac{1}{2}}x \\
+    \end{aligned} 
+\end{equation}
+进一步简化参数，令$\theta=\theta_0=-\theta_1$，于是：
+\begin{equation}
+    \begin{aligned}
+        x'=g_{\theta}\ast x\approx \theta(I_N+D^{-\frac{1}{2}}AD^{-\frac{1}{2}})x
+    \end{aligned}
+\end{equation}
+$I_N+D^{-\frac{1}{2}}AD^{-\frac{1}{2}}$特征值的范围是$[0,2]$，在深度学习过程中重复应用这个卷积算子可能会导致数值不稳定和梯度弥散或爆炸的问题，为了避免这个问题，再引入一个被称为重归一化的技巧：
+\begin{equation}
+    I_N+D^{-\frac{1}{2}}AD^{-\frac{1}{2}}\rightarrow \tilde{D}^{-\frac{1}{2}}\tilde{A}\tilde{D}^{-\frac{1}{2}}
+\end{equation}
+其中，$\tilde{A}=A+I_N$，$\tilde{D}_{ii}=\sum_j\tilde{A}_{ij}$，于是对于具有$C$个通道的图信号$X\in \mathbb{R}^{N\times C}$，图卷积过程定义如下：
+\begin{equation}
+    X'=\tilde{D}^{-\frac{1}{2}}\tilde{A}\tilde{D}^{-\frac{1}{2}}X\Theta
+\end{equation}
+其中，$\Theta\in \mathbb{R}^{C\times F}$是全部的卷积核参数（$C$个通道，每个通道$F$个卷积核）。
+这种图卷积层大大降低了计算复杂度，并且适配端到端的训练框架，能够同时处理节点特征和图结构信息。
+通过高效的矩阵运算，同时利用少量标签数据和大量无标签数据进行训练，显著提高分类性能，使模型能够处理大规模图数据，并在Cora、CiteSeer、PubMed数据集上进行了验证。
+实验结果表明，该方法在半监督分类任务上取得了显著优于传统方法的性能，特别是在标签数据有限的情况下表现尤为突出。
 
 \subsubsection{图嵌入}
 基于图嵌入的分析方法在图信号处理的基础上，借鉴深度学习相关技术的成果和经验，将表示学习的思路应用于网络结构特征的提取。这类方法的输入仍然是一堆具有网络结构的信号点，但输出除了信号特征外，还包括学习到的特征提取器和节点的嵌入向量表示。
+
+图嵌入方法的核心是图神经网络（Graph Neural Network，GNN），即使用神经网络将图的结构信息编码到节点的表示中去。
+早期的图神经网络主要是循环图神经网络，后来随着图信号处理技术和硬件技术的发展又出现了基于谱域（Spectral-based）的卷积图神经网络和基于空域（Spatial-based）的自编码图神经网络。
+
+循环图神经网络算法的思想是基于信息扩散机制，模拟网络节点之间相互影响的过程，直至达到一个均衡的状态，从而实现将网络结构信息编码进节点表示的目的。具体实现过程是，用一组同样的参数来迭代的更新每个节点的状态表示，直至收敛：
+\begin{equation}
+    h_v^{(t)}=\sum_{u\in N(v)}f(x_v,x_{(v,u)}^e,x_u,h_u^{(t-1)})
+\end{equation}
+其中，$h_v^{(t)}$是节点$v$在$t$时刻的状态，$f(\cdot)$是参数化的函数。
+其输入包括：节点$v $的属性特征$x_v$、与节点$v$相连的边的属性特征$x_{(v,u)}^e$、节点$v$的邻居的属性特征$x_u$以及节点$v$的邻居上一时刻的状态$h_u^{(t-1)}$。
+可见，循环图神经网络算法中的网络层类似于社群分类中常用的局部条件分类器\upcite{sen2008collective}，是一种依靠局部更新实现自举（bootstrapping）的方法，不过前者的输出是节点的表示，后者输出的是类别标签。
+为了保证收敛性，通常需要限制函数$f(\cdot)$为一种收缩映射（contraction mapping）。
+
+Sperduti等人\upcite{sperduti1997supervised}最开始使用有监督学习的神经网路来解决网络结构的分类问题，使用的就是循环迭代的思路，但受限于当时计算机的性能，能够处理的网络结构被限定为有向无环图，而且该项工作也普遍被认为是最早的图神经网络的研究之一\upcite{velickovic2017graph,wu2020comprehensive}。
+Scarselli等人\upcite{scarselli2008graph}正式提出了图神经网络的概念，并在之前工作的基础上扩展了可处理的网络结构。
+在该模型中，包含两个部分：负责编码节点表示的多层感知机网络$f $和负责对$f$输出的表示进行分类的判别器$g$。
+在训练过程中，正向迭代获取节点表示和反向迭代通过梯度更新$f$的参数交替进行以优化训练目标，这种训练策略使得该模型能够应对网络中的环状结构。
+Gallicchio等人\upcite{gallicchio2010graph}在此基础上引入了一个虚拟的回声节点（Echo）来加速迭代过程，此外，该方法选择训练输出层而非编码层，从而避免了迭代的编码过程给训练带来的巨大计算开销。
+Li等人\upcite{li2015gated}使用了当时更为先进的门控循环单元（Gated Recurrent Unit，GRU\upcite{cho2014learning}）代替传统的多层感知机结构作为编码节点表示的网络模块，进一步解决了训练过程中的长时依赖和梯度弥散问题，并且不需要再限制参数以保证收敛性，从而提升了模型表示能力。
+然而当处理的网络规模进一步加大时，循环神经网络的长时依赖问题依然突出，并且会因为要存储节点的中间状态而面临极大的存储开销。
+对此，Dai等人\upcite{dai2018learning}提出了一种适应大规模网络的节点表示学习算法，该方法每次迭代随机采样一个批次的节点进行状态更新，采样另一个批次的节点进行梯度更新，从而有效限制了每次迭代的计算量。
+同时，为了保证计算的稳定性，该方法采用了一种类似Gibbs采样和动量梯度的策略来定义循环函数。
 
 \subsection{时空序列分析技术}
 
