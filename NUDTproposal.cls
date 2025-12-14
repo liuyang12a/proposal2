@@ -107,7 +107,7 @@ gbpub=false,url=false,gbnamefmt=lowercase]{biblatex} % 设定引用格式
 
 % 参考文献表格统一行高，在此处设置
 \newlength\tabrowheight
-\setlength\tabrowheight{1cm}
+\setlength\tabrowheight{1.3cm}
 
 \defbibtabular{bibtabular}
   {\setlength{\LTpre}{0pt}%
