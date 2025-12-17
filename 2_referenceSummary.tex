@@ -308,27 +308,36 @@ Atwood等人\upcite{atwood2016diffusion}等人将卷积操作视为一个信息�
 GraphSAGE作为一个通用的归纳框架，利用节点特征信息来有效生成先前未见数据的节点表示，在归纳式表示学习任务中优于当时的其他方法。
 
 \paragraph{自编码图神经网络}
-Aditya等人\upcite{grover2016node2vec}提出了一种名为Node2Vec的算法框架，借鉴了自然语言处理中Word2Vec的表示学习思路，以一种灵活的节点网络邻域定义和有偏随机游走策略，能够探索多样化的邻域结构。
+自编码图神经网络算法的思想是代理任务驱动，借助神经网络的表示学习能力和弱监督信号的引导，从而在训练的过程中顺便获得节点的空间嵌入表示。
+
+例如，Aditya等人\upcite{grover2016node2vec}提出了一种名为Node2Vec的算法框架，借鉴了自然语言处理中Word2Vec的表示学习思路，以一种灵活的节点网络邻域定义和有偏随机游走策略，能够探索多样化的邻域结构。
 当邻域结构确定后，对网络结构的表示学习过程即对应于优化以下目标：
 \begin{equation}
-    \max_{f} \quad \sum_{u\in V} \log \textit{Pr}(\textit{N}_{\textit{S}}(u)|f(u))
+    \max_{f} \quad \sum_{u\in V} \log \text{Pr}(\text{N}_{\text{S}}(u)|f(u))
 \end{equation}
-其中，$\textit{N}_{\textit{S}}(u)$表示节点$u$的邻域，基于邻域的条件独立性和对称性假设有：
+其中，$\text{N}_{\text{S}}(u)$表示节点$u$的邻域，基于邻域的条件独立性和对称性假设有：
 \begin{equation}
     \begin{aligned}
-        \textit{Pr}(\textit{N}_{\textit{S}}(u)|f(u))= \prod_{n_i \in \textit{N}_{\textit{S}}(u)} \textit{Pr}(n_i|f(u)) \\
-        \textit{Pr}(n_i|f(u))=\frac{\exp(f(n_i)\cdot f(u))}{\sum_{v\in V}\exp(f(v)\cdot f(u))}
+        \text{Pr}(\text{N}_{\text{S}}(u)|f(u))= \prod_{n_i \in \text{N}_{\text{S}}(u)} \text{Pr}(n_i|f(u)) \\
+        \text{Pr}(n_i|f(u))=\frac{\exp(f(n_i)\cdot f(u))}{\sum_{v\in V}\exp(f(v)\cdot f(u))}
     \end{aligned}
 \end{equation}
 此时，目标函数可以转化为：
 \begin{equation}
     \begin{aligned}
-            &\max_{f} \quad \sum_{u\in V} \Big[ \sum_{n_i \in \textit{N}_{\textit{S}}(u)} \log \textit{Pr}(n_i|f(u)) \Big] \\
-            \Rightarrow &\max_{f} \quad \sum_{u\in V} \Big[ \sum_{n_i \in \textit{N}_{\textit{S}}(u)} \log \frac{\exp(f(n_i)\cdot f(u))}{\sum_{v\in V}\exp(f(v)\cdot f(u))} \Big] \\
-            \Rightarrow &\max_{f} \quad \sum_{u\in V} \Big[ -\log Z_u + \sum_{n_i \in \textit{N}_{\textit{S}}(u)} f(n_i)\cdot f(u)) \Big]
+            &\max_{f} \quad \sum_{u\in V} \Big[ \sum_{n_i \in \text{N}_{\text{S}}(u)} \log \text{Pr}(n_i|f(u)) \Big] \\
+            \Rightarrow &\max_{f} \quad \sum_{u\in V} \Big[ \sum_{n_i \in \text{N}_{\text{S}}(u)} \log \frac{\exp(f(n_i)\cdot f(u))}{\sum_{v\in V}\exp(f(v)\cdot f(u))} \Big] \\
+            \Rightarrow &\max_{f} \quad \sum_{u\in V} \Big[ -\log Z_u + \sum_{n_i \in \text{N}_{\text{S}}(u)} f(n_i)\cdot f(u)) \Big]
     \end{aligned}
 \end{equation}
 其中，配分项$Z_u=\sum_{v\in V}\exp(f(v)\cdot f(u))$在网络规模很大时会变得难以计算，因此将通过负采样来统一近似估计。
+
+Node2Vec所构造的目标函数实际上是在最大化采样邻域的似然度，这本身就是一种自编码的结构，期望节点的嵌入表示能够最大程度还原网络的结构。
+其他的自编码图神经网络算法基本都秉持着这样的思路，只是在实现的技术路线上有所不同。
+早期的方法使用多层感知机来学习节点的嵌入表示。Perozzi等人\upcite{perozzi2014deepwalk}提出了一种名为DeepWalk的方法，利用随机游走在线学习网络中顶点的潜在表示，将语言模型和深度学习技术从单词序列推广到图结构，通过截断随机游走获取局部信息，将这些游走视为句子来学习顶点的潜在表示。Cao等人\upcite{cao2016deep}在DeepWalk的基础上改进其线性采样生成序列的方式，基于一组降噪自编码器结构，采用随机冲浪模型直接捕获图结构信息。Wang等人\upcite{wang2016structural}提出了一种名为SDNE的方法，使用半监督深度模型和同时利用一阶和二阶邻近性来有效捕捉和保留网络结构的高度非线性特征，解决了浅层模型无法准确表征复杂网络结构的问题。Kipf等人\upcite{kipf2016variational}提出了变分图自动编码器（VGAE），采用了一种基于变分的图自动编码器框架，使用图卷积网络作为编码器，内积解码器进行重构。
+
+自编码图神经网络的另一个重要作用是进行图生成，即基于学习到的节点嵌入表示通过解码器来生成图结构，这在链路预测、网络重构任务中有着重要的应用价值。
+其中，序列化的生成方法\upcite{gomez2018automatic,kusner2017grammar,dai2018syntax}采用逐节点、逐连接的方式依从从局部生成网络的结构；全局化的生成方法\upcite{simonovsky2018graphvae,ma2018constrained,de2018molgan,schlichtkrull2018modeling,gulrajani2017improved}则采取一次性生成全部网络结构的方式，这类方法通常将节点和边的存在性建模为独立的随机变量并基于概率图模型来对网络结构进行推断。
 
 \subsection{时空序列预测}
 在大多数实际应用场景中，网络在结构和输入上往往都是动态的，传统的时间序列分析技术难以处理多个序列的异质性和相互依赖关系，而传统的网络结构分析技术则难以处理时间上的动态性。
@@ -336,11 +345,11 @@ Aditya等人\upcite{grover2016node2vec}提出了一种名为Node2Vec的算法框
 
 例如，城市的交通系统就是一个典型的时空序列，城市道路连接不同的场所地点在地理空间上形成了交通网络，而不同地点的交通状况会随着时间而不断变化。
 而交通流量预测问题，就是一个十分具有现实意义的研究方向，在智能运输系统和智慧城市建设中有着广泛的应用前景。
-交通流量的预测，可以被抽象定义为时空序列预测问题，其输入包括：交通网络$G(V,E)$，以及历史交通信号序列$（X_1, X_2,...,X_T）\in \mathbb{T\times |V|\times C}$，其中$T$表示在不同时刻的采样点的数量，$C$表示采样特征的通道数量。输出为预测的未来$t$个时刻的交通信号：$(X_{T+1}, X_{T+2},...X_{T+t})\in \mathbb{t\times |V|\times C}$
+交通流量的预测，可以被抽象定义为时空序列预测问题，其输入包括：交通网络$G(V,E)$，以及历史交通信号序列$(X_1, X_2,...,X_T)\in \mathbb{R}^{T\times |V|\times C}$，其中$T$表示在不同时刻的采样点的数量，$C$表示采样特征的通道数量。输出为预测的未来$t$个时刻的交通信号：$(X_{T+1}, X_{T+2},...X_{T+t})\in \mathbb{R}^{t\times |V|\times C}$
 
 交通流预测的关键挑战在于时间和空间两个维度上的信息相互依赖，因此当前主流的方法大都着眼于寻求好的信息融合方法来提高预测的准确率。
 对于时间维度上的信息，使用循环神经网络（如LSTM）来提取特征是一种十分自然的思路\upcite{li2017diffusion,seo2018structured,geng2019spatiotemporal}。然而，循环神经网络存在表示能力不足和并行效率低下的问题，并且循环神经网络自身存在长时依赖问题\upcite{bengio1994learning}，因此也有使用1维卷积网络来提取特征的方法\upcite{yan2018spatial,wu2019graph,guo2019attention,song2020spatial}。
-随着以Transformer结构\upcite{vaswani2017attention}中的多头注意力机制在序列表示学习任务中展现出的优越性能，基于注意力机制的时序特征表示也被逐渐用于时空序列预测的模型管道当中\upcite{aguo2019attention,guo2021learning}。
+随着以Transformer结构\upcite{vaswani2017attention}中的多头注意力机制在序列表示学习任务中展现出的优越性能，基于注意力机制的时序特征表示也被逐渐用于时空序列预测的模型管道当中\upcite{guo2019attention,guo2021learning}。
 
 对于空间维度上的信息，在图卷积出现之前，一种通行的做法是按区域将地理位置划分为网格，从而使用卷积神经网络加以处理。\upcite{lin2019deepstn+,zonoozi2018periodic,yao2019revisiting}
 然而，这种网格化的方法难以利用交通网络的拓扑结构信息，因此也有直接以交通网络为输入来进行预测的方法\upcite{chen2020multi,song2020spatial,guo2019attention,song2020spatial}。
@@ -349,7 +358,38 @@ Aditya等人\upcite{grover2016node2vec}提出了一种名为Node2Vec的算法框
 
 \subsection{网络重构}
 网络重构要解决的问题是，在获取网络结构信息有限的约束下，来推断出更完整的网络结构信息。其输入是除完整网络结构外对网络的一切其他观测信息，输出是推断出的网络结构。
-在大数据时代，研究者往往能获取节点状态的时间序列数据，却难以直接观测节点间的连接结构与动力学规则，这一困境催生了复杂网络重构（Reconstruction methods for networks）这一前沿交叉方向。其核心目标是通过数据驱动的算法，从观测数据中逆向推断网络拓扑结构、动力学演化规律及潜在交互机制，为复杂系统的理解、预测与控制提供基础。
+基于信息论和复杂网络熵的度量\upcite{anand2009entropy}，网络重构问题可以被定义为如下带约束的优化问题\upcite{squartini2018reconstruction}：
+\begin{equation}
+    \mathscr{L}[P] = S - \lambda_0 \left[ \sum_{\mathbf{G} \in \mathcal{G}} P(\mathbf{G}) - 1 \right] - \sum_{m=1}^M \lambda_m \left[ \sum_{\mathbf{G} \in \mathcal{G}} P(\mathbf{G}) C_m(\mathbf{G}) - \langle C_m \rangle \right]
+\end{equation}
+
+其中，$\mathcal{G}$是网络系综（Ensemble），$\mathbf{G}$是网络构型（Configuration），$S$是网络构型分布$P(\mathbf{G})$的熵。
+$\lambda_0, \lambda_m$分别是拉格朗日乘子，用于引入约束条件，平衡熵与约束的权重。
+$C_m(\mathbf{G})$是第$m$个“网络可观测变量”，$\langle C_m \rangle$是$C_m(\mathbf{G})$的观测值。
+这个公式的核心思想是在最大化网络各观测变量观测值似然度的约束下，最大化网络构型分布的熵。
+
+指数随机图模型（Exponential Random Graphs，ERG）\upcite{robins2007introduction}在大多数网络重构算法中扮演中十分重要的角色。
+其通过最大化$\mathscr{L}[P]$来获得，即令：
+\begin{equation}
+    \frac{\delta \mathscr{L}[P]}{\delta P(\mathbf{G})} = 0
+\end{equation}
+从而得到：
+\begin{equation}
+    P(\mathbf{G} | \vec{\lambda}) = e^{-1 - \lambda_0 - \sum_{m=1}^M \lambda_m C_m(\mathbf{G})}
+\end{equation}
+这是一个指数形式的分布，故而得名指数随机图。其中的$\vec{\lambda}$是拉格朗日乘数。
+考虑到归一化约束$\sum_{\mathbf{G}} P(\mathbf{G}) = 1$，从而能够定义一个配分函数：
+\begin{equation}
+    e^{1 + \lambda_0} \equiv Z(\vec{\lambda}) = \sum_{\mathbf{G} \in \mathcal{G}} e^{-\sum_{m=1}^M \lambda_m C_m(\mathbf{G})}  
+\end{equation}
+于是有ERG的标准形式：
+\begin{equation}
+    P(\mathbf{G} | \vec{\lambda}) = \frac{e^{-\sum_{m=1}^M \lambda_m C_m(\mathbf{G})}}{Z(\vec{\lambda})}
+\end{equation}
+其中，指数部分的$H(\mathbf{G} | \vec{\lambda})=\sum_{m=1}^M \lambda_m C_m(\mathbf{G})$被称为图汉密尔顿项（graph Hamiltonian）。
+基于ERG，可以方便的分析真实世界中的网络构型$\hat{\mathbf{G}}$并且连续一致的给出其概率系数$P(\hat{\mathbf{G}} | \vec{\lambda})$
+
+在大数据时代，研究者往往能获取节点状态的时间序列数据，却难以直接观测节点间的连接结构与动力学规则，这一困境催生了复杂网络重构这一前沿交叉方向。其核心目标是通过数据驱动的算法，从观测数据中逆向推断网络拓扑结构、动力学演化规律及潜在交互机制，为复杂系统的理解、预测与控制提供基础。
 网络重构问题可细分为三类：仅推断动力学方程的动力学重构、仅恢复吸引子的相空间重构，以及同时推断结构与动力学的完整重构，其中后者是当前研究的核心挑战。
 
 动态网络重构可以归结为一类特殊的网络重构问题，其可观测的信息主要是各节点的动态演化过程，从而以此来推断这些节点所组成的交互网络。
