@@ -27,7 +27,7 @@
 \newcommand{\syht}{\CJKfamily{MyCJKsyht}}  
 
 \RequirePackage{geometry}
-\geometry{a4paper,includeheadfoot,top=15mm,bottom=25.4mm,left=31mm,right=31mm}%
+\geometry{a4paper,includeheadfoot,top=16mm,bottom=26.4mm,left=31mm,right=31mm}%
 \geometry{headheight=7.7mm,headsep=4.3mm,footskip=7.9mm,voffset=0mm}
 %\usepackage[type=alledges]{fgruler}
 
@@ -65,7 +65,7 @@ or test {\ifnumgreater{\value{page}}{\pageafsecseven}}
 {}{%
 \ifnumequal{\value{page}}{\sectionpage}
 {\tikz{\draw[line width=0.7pt] (0,0) rectangle (\textwidth+2mm,\textheight-0.6cm);}}
-{\tikz{\draw[line width=0.7pt] (0,0) rectangle (\textwidth+2mm,\textheight+0.5mm);}}%
+{\tikz{\draw[line width=0.7pt] (0,0) rectangle (\textwidth+2mm,\textheight+3.5mm);}}%
 }%
 }
 \DraftwatermarkOptions{anchor=lb, pos={3cm,26.45cm},markcmd=\FrameforSectionWM}

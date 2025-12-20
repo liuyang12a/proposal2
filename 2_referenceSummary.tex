@@ -13,8 +13,14 @@
 网络结构分析技术是在图论的基础上，将网络的结构作为分析的对象，通过特定算法来提取网络的结构特征。
 从其发展历史脉络来看，可以大致分为以下三个阶段，分别是：基于谱图理论的分析方法、基于图信号处理理论的分析方法和基于图嵌入的分析方法。
 
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.15]{网络结构分析.PNG}
+    \caption{网络结构分析技术发展脉络}     \label{history}
+\end{figure}
+
 \subsubsection{谱图理论}
-基于谱图理论的分析方法一般将网络结构本身作为主要的分析对象，其输入一般为网络的结构，输出为网络的结构特征参数。
+基于谱图理论\upcite{nosal1970eigenvalues,chung1997spectral}的分析方法一般将网络结构本身作为主要的分析对象，其输入一般为网络的结构，输出为网络的结构特征参数。
 
 谱图理论基于图论的基础来表示一个网络 $G(V,E)$，其中 $V=(v_1, v_2,...v_n)$ 表示网络中所有节点，$E=(...,e_{ij}, ...)$表示网络中所有的连边。
 于是网络结构可以表征为一个邻接矩阵 $W=[w_{ij}]$，其元素满足:
@@ -44,12 +50,12 @@
 
 拉普拉斯矩阵是谱图理论中最为重要的一个分析工具，又被称为图的谱。特别是对于无向图，其拉普拉斯矩阵具有一些很好的性质：
 \begin{itemize}
-    \item 对称性，即所有的特征值均为实数；
-    \item 二次型满足：$f^\top Lf = \frac{1}{2}\sum\limits_{i,j=1}^{n}w_{ij}(f_i-f_j)^2$；
-    \item 半正定，即有 $0 =\lambda_1 \leq \lambda_2 \leq... \leq \lambda_n \leq 2\Delta, \quad \Delta=\max(...,d_i,...)$。
+    \item 1.对称性，即所有的特征值均为实数；
+    \item 2.二次型满足：$f^\top Lf = \frac{1}{2}\sum\limits_{i,j=1}^{n}w_{ij}(f_i-f_j)^2$；
+    \item 3.半正定，即有 $0 =\lambda_1 \leq \lambda_2 \leq... \leq \lambda_n \leq 2\Delta, \quad \Delta=\max(...,d_i,...)$。
 \end{itemize}
 
-谱图理论的一个典型应用是谱聚类，谱聚类是一个无向图切图问题，试图找到一个图的最优分割 $A_1,A_2,..A_k$，使得如下目标函数最小：
+谱图理论的一个典型应用是谱聚类\upcite{shi2000normalized,ng2001spectral}，谱聚类是一个无向图切图问题，试图找到一个图的最优分割 $A_1,A_2,..A_k$，使得如下目标函数最小：
 \begin{equation}
     NCut(A_1,A_2,...,A_k) = \frac{1}{2}\sum\limits_{i=1}^{k}\frac{cut(A_i, \overline{A}_i )}{vol(A_i)}
 \end{equation}
@@ -62,9 +68,9 @@
 \begin{equation}
     \begin{aligned} 
         h_i^{\top}Lh_i & = \frac{1}{2}\sum\limits_{m=1}\sum\limits_{n=1}w_{mn}(h_{im}-h_{in})^2 \\
-        & =\frac{1}{2}(\sum\limits_{m \in A_i, n \notin A_i}w_{mn}(\frac{1}{\sqrt{vol(A_i)}} - 0)^2 +  \sum\limits_{m \notin A_i, n \in A_i}w_{mn}(0 - \frac{1}{\sqrt{vol(A_i)}} )^2\\
-        & = \frac{1}{2}(\sum\limits_{m \in A_i, n \notin A_i}w_{mn}\frac{1}{vol(A_i)} +  \sum\limits_{m \notin A_i, n \in A_i}w_{mn}\frac{1}{vol(A_i)}\\
-        & = \frac{1}{2}(cut(A_i, \overline{A}_i) \frac{1}{vol(A_i)} + cut(\overline{A}_i, A_i) \frac{1}{vol(A_i)}) \\
+        & =\frac{1}{2}\Big(\sum\limits_{m \in A_i, n \notin A_i}w_{mn}(\frac{1}{\sqrt{vol(A_i)}} - 0)^2 +  \sum\limits_{m \notin A_i, n \in A_i}w_{mn}(0 - \frac{1}{\sqrt{vol(A_i)}} )^2\Big)\\
+        & = \frac{1}{2}\Big(\sum\limits_{m \in A_i, n \notin A_i}w_{mn}\frac{1}{vol(A_i)} +  \sum\limits_{m \notin A_i, n \in A_i}w_{mn}\frac{1}{vol(A_i)}\Big)\\
+        & = \frac{1}{2}\Big(cut(A_i, \overline{A}_i) \frac{1}{vol(A_i)} + cut(\overline{A}_i, A_i) \frac{1}{vol(A_i)}\Big) \\
         & =  \frac{cut(A_i, \overline{A}_i)}{vol(A_i)} 
     \end{aligned}
 \end{equation}
@@ -79,10 +85,11 @@
 其中，$F$是一组正交基，$D^{-1/2}LD^{-1/2}$ 仍然是对称矩阵，常被记为对称归一化的拉普拉斯矩阵 $\tilde{L}$。
 因此，借鉴维度规约的思想，可以通过找到 $\tilde{L}$ 的最小的 $k$ 个特征值对应的特征向量并归一化来作为 $F$ 的近似最优解。
 然而，由于使用维度规约损失额少量信息以及正交化变换，$F$不能直接指示各节点的子类归属，因此需要再对齐进行一次传统的聚类（如K-means），即可得到谱聚类的结果。
+谱聚类的具体过程如算法\ref{alg:spectral_clustering}所示。
 对$F$的传统聚类，就相当于对网络结构在谱空间上的聚类，谱空间的基即为$\tilde{L}$。
 
 \begin{algorithm}[h]
-    \caption{谱聚类算法}
+    \caption{谱聚类算法\upcite{ng2001spectral}}
     \label{alg:spectral_clustering}
     \begin{algorithmic}[1] % 1表示显示行号
       \REQUIRE 
@@ -266,7 +273,7 @@ $I_N+D^{-\frac{1}{2}}AD^{-\frac{1}{2}}$特征值的范围是$[0,2]$，在深度�
 可见，循环图神经网络算法中的网络层类似于社群分类中常用的局部条件分类器\upcite{sen2008collective}，是一种依靠局部更新实现自举（bootstrapping）的方法，不过前者的输出是节点的表示，后者输出的是类别标签。
 为了保证收敛性，通常需要限制函数$f(\cdot)$为一种收缩映射（contraction mapping）。
 
-Sperduti等人\upcite{sperduti1997supervised}最开始使用有监督学习的神经网路来解决网络结构的分类问题，使用的就是循环迭代的思路，但受限于当时计算机的性能，能够处理的网络结构被限定为有向无环图，而且该项工作也普遍被认为是最早的图神经网络的研究之一\upcite{velickovic2017graph,wu2020comprehensive}。
+Sperduti等人\upcite{sperduti1997supervised}最开始使用有监督学习的神经网络来解决网络结构的分类问题，使用的就是循环迭代的思路，但受限于当时计算机的性能，能够处理的网络结构被限定为有向无环图，而且该项工作也普遍被认为是最早的图神经网络的研究之一\upcite{velickovic2017graph,wu2020comprehensive}。
 Scarselli等人\upcite{scarselli2008graph}正式提出了图神经网络的概念，并在之前工作的基础上扩展了可处理的网络结构。
 在该模型中，包含两个部分：负责编码节点表示的多层感知机网络$f$和负责对$f$输出的表示进行分类的判别器$g$。
 在训练过程中，正向迭代获取节点表示和反向迭代通过梯度更新$f$的参数交替进行以优化训练目标，这种训练策略使得该模型能够应对网络中的环状结构。
@@ -390,9 +397,8 @@ $C_m(\mathbf{G})$是第$m$个“网络可观测变量”，$\langle C_m \rangle$
 基于ERG，可以方便的分析真实世界中的网络构型$\hat{\mathbf{G}}$并且连续一致的给出其概率系数$P(\hat{\mathbf{G}} | \vec{\lambda})$
 
 在大数据时代，研究者往往能获取节点状态的时间序列数据，却难以直接观测节点间的连接结构与动力学规则，这一困境催生了复杂网络重构这一前沿交叉方向。其核心目标是通过数据驱动的算法，从观测数据中逆向推断网络拓扑结构、动力学演化规律及潜在交互机制，为复杂系统的理解、预测与控制提供基础。
-网络重构问题可细分为三类：仅推断动力学方程的动力学重构、仅恢复吸引子的相空间重构，以及同时推断结构与动力学的完整重构，其中后者是当前研究的核心挑战。
-
-动态网络重构可以归结为一类特殊的网络重构问题，其可观测的信息主要是各节点的动态演化过程，从而以此来推断这些节点所组成的交互网络。
-因此，动态网络重构问题可视为时空序列分析问题的逆向过程。
+Shen等人\upcite{shen2014reconstructing}提出基于压缩感知的传播网络重构方法，将网络结构推断转化为凸优化问题，实现对具有自然多样性的传播网络及隐藏源节点的识别，显著提升了稀疏网络的重构效率。Wang等人\upcite{wang2011time}提出时序数据驱动的压缩感知重构方法，针对振荡器网络的特性，通过压缩感知技术从时间序列中提取网络连接信息，实现对复杂振荡系统的结构预测。Wu等人\upcite{wu2021recovering}通过整合多学科要素，如规模法则、进化博弈论和发展模块性理论，建立了一种能够从静态数据中提取动态信息并重建移动网络的新框架。
+Tiago\upcite{peixoto2019network}提出了一种可扩展的非参数贝叶斯方法，能够基于观察到的功能性行为进行网络重构，并同时推断网络中的社区结构，实现了重构与社区检测的协同效应。
+Newman\upcite{newman2018network}提出了一种从复杂、多模态且带有噪声的数据中优化估计网络结构的新方法，适用于多种类型的数据格式，包括重复、矛盾、带有注释或缺失数据的情况，并在两个不同的社会网络中进行了应用。
 
 %%% ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
