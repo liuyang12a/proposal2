@@ -1,10 +1,3 @@
-%%%%% --------------------------------------------------------------------------------
-%%
-%%%%******************************* Main Content *************************************
-%%
-%%% ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
 \section{文献综述}
 
 （该选题在国内/外的研究现状及发展动态；阅读文献的范围以及查阅方式等。博士不得少于3000字，硕士不少于2000字。）
@@ -354,9 +347,94 @@ Node2Vec所构造的目标函数实际上是在最大化采样邻域的似然度
 而交通流量预测问题，就是一个十分具有现实意义的研究方向，在智能运输系统和智慧城市建设中有着广泛的应用前景。
 交通流量的预测，可以被抽象定义为时空序列预测问题，其输入包括：交通网络$G(V,E)$，以及历史交通信号序列$(X_1, X_2,...,X_T)\in \mathbb{R}^{T\times |V|\times C}$，其中$T$表示在不同时刻的采样点的数量，$C$表示采样特征的通道数量。输出为预测的未来$t$个时刻的交通信号：$(X_{T+1}, X_{T+2},...X_{T+t})\in \mathbb{R}^{t\times |V|\times C}$
 
+\small
+\begin{longtable}{|m{0.17\textwidth}|m{0.18\textwidth}|m{0.15\textwidth}|m{0.20\textwidth}|m{0.15\textwidth}|}
+    % 表格头部（每页重复）
+    \hline
+    \centering\fangsong 模型 & 
+    \centering\fangsong 空间拓扑构造 & 
+    \centering\fangsong 空域特征提取 & 
+    \centering\fangsong 时域特征提取 & 
+    \centering\fangsong 额外特征 \\
+    % \hline
+    \endfirsthead  % 第一页头部结束
+  
+    % 后续页头部
+    \hline
+    \centering\fangsong 模型 & 
+    \centering\fangsong 空间拓扑构造 & 
+    \centering\fangsong 空域特征提取 & 
+    \centering\fangsong 时域特征提取 & 
+    \centering\fangsong 额外特征 \\
+    % \hline
+    \endhead
+  
+    % 表格底部（每页重复）
+    \hline
+    \multicolumn{5}{r}{\fangsong 续表} \\
+    \endfoot
+  
+    % 最后一页底部
+    \hline
+    \endlastfoot
+  
+    % 表格内容（仿宋字体，适配模板全局字体）
+    \hline
+    \fangsong DGCRNN\upcite{li2017diffusion} & \fangsong 距离 & \fangsong GCN & \fangsong GRU & \fangsong Time \\
+    \hline
+    \fangsong AGC-Seq2Seq\upcite{zhang2018multistep} & \fangsong 联通性 & \fangsong GCN & \fangsong GRU+Attn & \fangsong None \\
+    \hline
+    \fangsong TGC-LSTM\upcite{cui2019traffic} & \fangsong 联通性+其他 & \fangsong GCN & \fangsong LSTM & \fangsong None \\
+    \hline
+    \fangsong ST-MGCN\upcite{geng2019spatiotemporal} & \fangsong 联通性+其他 & \fangsong GCN & \fangsong RNN & \fangsong POI+道路网 \\
+    \hline
+    \fangsong ST-MetaGCN\upcite{pan2019urban} & \fangsong 距离 & \fangsong Meta-GAT & \fangsong Meta-RNN & \fangsong Time+道路网 \\
+    \hline
+    \fangsong MRA-BNet\upcite{chen2020multi} & \fangsong 距离+其他 & \fangsong GCN+Attn & \fangsong GRU & \fangsong Time \\
+    \hline
+    \fangsong DGCRN\upcite{guo2020dynamic} & \fangsong 联通性 & \fangsong GCN+Attn & \fangsong LSTM+Attn & \fangsong Time \\
+    \hline
+    \fangsong AGCN\upcite{bai2020adaptive} & \fangsong 自适应 & \fangsong GCN & \fangsong GRU & \fangsong Time \\
+    \hline
+    \fangsong STGNN\upcite{wang2020traffic} & \fangsong 自适应+距离 & \fangsong GCN & \fangsong GRU+Transformer & \fangsong Time \\
+    \hline
+    \fangsong GMAN\upcite{zheng2020gman} & \fangsong 距离 & \fangsong 嵌入+Attn & \fangsong Embedding+Attn & \fangsong Time \\
+    \hline
+    \fangsong ST-GRAT\upcite{kim2020stgrat} & \fangsong 距离 & \fangsong 嵌入+Attn & \fangsong Embedding+Attn & \fangsong Time \\
+    \hline
+    \fangsong STTNs\upcite{xu2020spatial} & \fangsong 自适应 & \fangsong GCN & \fangsong CNN & \fangsong Time \\
+    \hline
+    \fangsong STGCN\upcite{yu2017spatio} & \fangsong 距离 & \fangsong GCN & \fangsong CNN & \fangsong Time \\
+    \hline
+    \fangsong ASTGCN\upcite{guo2019attention} & \fangsong 联通性 & \fangsong GCN+Attn & \fangsong CNN+Attn & \fangsong Time \\
+    \hline
+    \fangsong STSGCN\upcite{song2020spatial} & \fangsong 联通性 & \fangsong GCN & \fangsong CNN & \fangsong Time \\
+    \hline
+    \fangsong LSGCN\upcite{huang2020lsgcn} & \fangsong 联通性 & \fangsong GCN+Attn & \fangsong CNN & \fangsong Time \\
+    \hline
+    \fangsong Graph WaveNet\upcite{wu2019graph} & \fangsong 自适应+距离 & \fangsong GCN & \fangsong CNN & \fangsong Time \\
+    \hline
+    \fangsong SLCNN\upcite{zhang2020spatio} & \fangsong 自适应 & \fangsong GCN & \fangsong CNN & \fangsong Time \\
+    \hline
+    \fangsong MTGNN\upcite{wu2020connecting} & \fangsong 自适应 & \fangsong GCN & \fangsong CNN & \fangsong Time \\
+    \hline
+    \fangsong ST-ResNet\upcite{zhang2017deep} & \fangsong 网格化 & \fangsong CNN & \fangsong CNN & \fangsong Time+Weather \\
+    \hline
+    \fangsong DeepSTN+\upcite{lin2019deepstn+} & \fangsong 网格化 & \fangsong CNN & \fangsong CNN & \fangsong Time+POI \\
+    \hline
+    \fangsong DMVST-Net\upcite{yao2018deep} & \fangsong 网格化+其他 & \fangsong CNN+嵌入 & \fangsong RNN & \fangsong Time+Weather \\
+    \hline
+    \fangsong STDN\upcite{yao2019revisiting} & \fangsong 网格化 & \fangsong CNN & \fangsong RNN+Attn & \fangsong Time \\
+    \hline
+    \fangsong DARNN\upcite{qin2017dual} & \fangsong None & \fangsong None & \fangsong RNN+Attn & \fangsong None \\
+    \hline
+    \fangsong GeoMAN\upcite{liang2018geoman} & \fangsong None & \fangsong Attn & \fangsong RNN+Attn & \fangsong Time+Weather+POI
+\end{longtable}
+\normalsize
+
 交通流预测的关键挑战在于时间和空间两个维度上的信息相互依赖，因此当前主流的方法大都着眼于寻求好的信息融合方法来提高预测的准确率。
 对于时间维度上的信息，使用循环神经网络（如LSTM）来提取特征是一种十分自然的思路\upcite{li2017diffusion,seo2018structured,geng2019spatiotemporal}。然而，循环神经网络存在表示能力不足和并行效率低下的问题，并且循环神经网络自身存在长时依赖问题\upcite{bengio1994learning}，因此也有使用1维卷积网络来提取特征的方法\upcite{yan2018spatial,wu2019graph,guo2019attention,song2020spatial}。
-随着以Transformer结构\upcite{vaswani2017attention}中的多头注意力机制在序列表示学习任务中展现出的优越性能，基于注意力机制的时序特征表示也被逐渐用于时空序列预测的模型管道当中\upcite{guo2019attention,guo2021learning}。
+随着以Transformer结构\upcite{vaswani2017Attn}中的多头注意力机制在序列表示学习任务中展现出的优越性能，基于注意力机制的时序特征表示也被逐渐用于时空序列预测的模型管道当中\upcite{guo2019attention,guo2021learning}。
 
 对于空间维度上的信息，在图卷积出现之前，一种通行的做法是按区域将地理位置划分为网格，从而使用卷积神经网络加以处理。\upcite{lin2019deepstn+,zonoozi2018periodic,yao2019revisiting}
 然而，这种网格化的方法难以利用交通网络的拓扑结构信息，因此也有直接以交通网络为输入来进行预测的方法\upcite{chen2020multi,song2020spatial,guo2019attention,song2020spatial}。
