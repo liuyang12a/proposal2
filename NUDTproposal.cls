@@ -51,6 +51,14 @@
 \fancyfoot[C]{- \thepage \ - }
 \renewcommand{\headrulewidth}{0pt}% header rule
 \renewcommand{\footrulewidth}{0pt}% footer rule
+\pagestyle{fancy} % 全局启用fancy样式
+\fancypagestyle{plain}{% 覆盖plain样式
+  \fancyhf{}
+  \fancyhead[C]{\songti 国防科技大学研究生学位论文开题报告\\\centerline{\rule[5pt]{\textwidth+3mm}{0.7pt}}}
+  \fancyfoot[C]{- \thepage \ - }
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
 
 \RequirePackage{etoolbox}
 \RequirePackage{draftwatermark} %用其绘制框线
