@@ -11,6 +11,108 @@
 
 （开展研究应具备的条件及已具备的条件，可能遇到的困难与问题和解决措施。）
 
+因为本研究采取数据驱动的方法通过实验来验证基于深度表示学习的社会复杂系统预测及重构技术的有效性，因此数据和算力是开展研究应具备的两个关键条件。
+
+\subsection{数据准备方面}
+
+因为本研究选择人才流动网络、信息传播网络和交通运输网络三个典型场景作为实证分析的现实任务，因此需要对这个三个任务分别选择和准备用于实验的数据集。
+
+\subsubsection{人才流动网络数据}
+拟使用国际职业社交平台领英（LinkedIn）\upcite{linkedin}提供的人才简历数据。
+LinkedIn是全球最大的职业社交平台之一，并且与课题组存在合作关系。
+该平台在200多个国家和地区拥有超过8.3亿用户，来自世界各地的劳动者可以在LinkedIn上维护自己的个人资料和社交关系。
+LinkedIn平台提供的数据集收集了2985414份用户的个人简历档案，均匿名，包含行业、国家、教育经历、工作经历等字段，具体如表\ref{tab:resume_fields}所示。
+\begin{longtable}{|c|c|c|}
+    
+    % \hline
+    
+    % \multicolumn{3}{|c|}{\textbf{用户简历数据集主要字段}} \\
+    \caption{用户简历数据集主要字段} \label{tab:resume_fields}\\
+    \hline
+    \fangsong{字段名} & \fangsong{解释} & \fangsong{数据类型} \\
+    % \hline
+    
+    \endfirsthead  % 第一页表头
+    
+    % \hline
+    \caption{用户简历数据集主要字段（续）} \\
+    % \multicolumn{3}{|c|}{\textbf{用户简历数据集主要字段（续）}} \\
+    \hline
+    \fangsong{字段名} & \fangsong{解释} & \fangsong{数据类型} \\
+    % \hline
+    
+    \endhead  % 后续页表头
+    
+    \hline
+    \multicolumn{3}{r|}{\fangsong 下一页继续} \\
+    \endfoot  % 每页底部提示
+    
+    \hline
+    \endlastfoot  % 最后一页底部
+    
+    % 表格内容
+    \hline
+    \fangsong id & \fangsong 用户ID & \fangsong 字符串 \\
+    \hline
+    \fangsong name & \fangsong 用户姓名 & \fangsong 字符串 \\
+    \hline
+    \fangsong locality & \fangsong 用户所在地 & \fangsong 字符串 \\
+    \hline
+    \fangsong skills & \fangsong 用户拥有的技能 & \fangsong 字符串 \\
+    \hline
+    \fangsong industry & \fangsong 用户的行业 & \fangsong 字符串 \\
+    \hline
+    \fangsong summary & \fangsong 用户的个人简介 & \fangsong 长文本 \\
+    \hline
+    \fangsong url & \fangsong 用户的简历主页地址 & \fangsong 超链接 \\
+    \hline
+    \fangsong also\_view & \fangsong 看过本简历页的用户还看过的其他简历主页 & \fangsong 超链接 \\
+    \hline
+    \fangsong education & \fangsong 用户的教育经历 & \fangsong 长文本 \\
+    \hline
+    \fangsong group & \fangsong 用户加入的LinkedIn群组 & \fangsong 字符串 \\
+    \hline
+    \fangsong experience & \fangsong 用户的工作经历 & \fangsong 长文本 \\
+    \hline
+    \fangsong specialties & \fangsong 用户的特长 & \fangsong 长文本 \\
+    \hline
+    \fangsong events & \fangsong 用户的主要工作变动事件 & \fangsong 长文本 \\
+    \hline
+    \fangsong interests & \fangsong 用户的兴趣 & \fangsong 长文本 \\
+    \hline
+    \fangsong homepage & \fangsong 用户的个人主页（非LinkedIn） & \fangsong 超链接 \\
+    \hline
+    \fangsong honors & \fangsong 用户获得的荣誉 & \fangsong 长文本 \\
+  \end{longtable}
+
+基于这些字段，借助自然语言处理的实体抽取、关系抽取、事件抽取、实体对齐等技术可以大致构建起一个关于人才流动网络的时空序列。
+
+\subsubsection{信息传播网络数据}
+XS-Video数据集\upcite{xsvideo}由中国科学院自动化研究所MAIS团队的薛地展、崔静、钱圣升、胡传瑞、徐常胜等人于2025年提出，是首个跨平台短视频传播影响力评估的大规模真实数据集。
+该数据集涵盖抖音、快手、西瓜视频等五大中国主流平台的117,720条短视频，包含381,926个样本和535个话题，标注了从0到9级的传播影响力等级。
+
+其创新性在于突破了传统单平台数据集的局限，首次整合了跨平台传播数据及包括播放量、点赞、分享、收藏、粉丝数、评论等完整互动指标，构建了包含550万节点和17亿边的巨型传播图谱，为短视频传播动力学研究提供了全新基准。
+
+
+\subsubsection{交通运输网络数据}
+
+PEMS\upcite{chen2001freeway}（Performance Measurement System）是由加州交通局（Caltrans）建立的一个全面的道路性能监测系统，由用于数据收集的道路传感器、基于网络的数据仓库和数据分析套件组成。
+PEMS 使用超过 39,000 个交通检测器（如感应线圈、车辆检测站和雷达设备）来收集实时交通数据，这些检测器覆盖了加州主要大都市区的高速公路网络。
+该系统实时处理每天 2GB 的 30 秒环形检测器数据，将原始数据处理成有用的信息，如计算速度、预测旅行时间、检测和修复数据错误等。PEMS 还提供了关键性能指标和分析功能，包括年平均日交通量、车辆行驶里程、延误、瓶颈位置、高峰时段数据等。
+
+PEMS 产生的交通监测测数据是当前最为主流的交通流数据集之一，常见的数据版本包括：
+
+PEMS04：涵盖旧金山湾区 29 条高速公路上的 3,848 个交通检测器，提供 2018 年 1 月 1 日至 2018 年 2 月 28 日期间的交通数据。
+
+PEMS08：包含 2016 年 7 月 1 日至 8 月 31 日期间圣贝纳迪诺市的交通数据，涵盖八条道路的 1,979 个交通检测器。
+
+该数据集通常用于交通流预测、拥堵分析、交通状态估计等交通工程、城市规划、自动驾驶、智能交通系统等领域的研究和开发。
+
+
+\subsection{算力准备方面}
+
+所在课题组购买了并行科技股份有限公司的超算云服务，可使用带有3090、4090、A100等不同性能GPU阵列的计算节点运行深度学习任务。
+目前在最低档位的3090计算节点上对交通流预测任务的主流SOTA方法进行了复现，些基本能满足实验需要。
 
 
 %%% ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
